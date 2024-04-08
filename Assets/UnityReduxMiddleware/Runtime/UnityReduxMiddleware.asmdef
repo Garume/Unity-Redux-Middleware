@@ -1,0 +1,23 @@
+{
+    "name": "UnityReduxMiddleware",
+    "rootNamespace": "",
+    "references": [
+        "GUID:710bb277e6ff49ed91ba164465e106ef",
+        "GUID:77221876cc6b8244180b96e320b1bcd4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.cysharp.r3",
+            "expression": "",
+            "define": "UNITYREDUXMIDDLEWARE_R3_INTEGRATION"
+        }
+    ],
+    "noEngineReferences": false
+}

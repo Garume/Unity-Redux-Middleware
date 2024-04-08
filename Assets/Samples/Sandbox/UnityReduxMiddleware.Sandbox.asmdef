@@ -1,0 +1,18 @@
+{
+    "name": "UnityReduxMiddleware.Sandbox",
+    "rootNamespace": "",
+    "references": [
+        "GUID:512d9fceac866f24b8ea8bff5b394c65",
+        "GUID:710bb277e6ff49ed91ba164465e106ef",
+        "GUID:9c739b017e1d4fdabf06fa2d84a463c3"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

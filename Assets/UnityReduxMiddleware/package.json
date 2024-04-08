@@ -1,0 +1,30 @@
+﻿{
+  "name": "com.garume.unity-redux-middleware",
+  "displayName": "Unity Redux Middleware",
+  "version": "0.0.1",
+  "unity": "2022.3",
+  "license": "MIT",
+  "category": "UI",
+  "keywords": [
+    "app",
+    "framework",
+    "redux",
+    "unity",
+    "app-ui"
+  ],
+  "author": {
+    "name": "Garume",
+    "url": "https://github.com/Garume"
+  },
+  "description": "Unity Redux Middleware",
+  "dependencies": {
+    "com.unity.dt.app-ui": "1.0.6"
+  },
+  "samples": [
+    {
+      "displayName": "Samples~/Sandbox",
+      "description": "Example of redux middleware",
+      "path": "Sandbox"
+    }
+  ]
+}
