@@ -67,8 +67,21 @@ namespace UnityReduxMiddleware
 
             DispatchDelegate next = (a, _) =>
             {
-                _mainThreadContext.Post(_ => _store.Dispatch(a), null);
-                return Task.CompletedTask;
+                var tcs = new TaskCompletionSource<bool>();
+                _mainThreadContext.Post(_ =>
+                {
+                    try
+                    {
+                        _store.Dispatch(a);
+                        tcs.SetResult(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        tcs.SetException(ex);
+                    }
+                }, null);
+
+                return tcs.Task;
             };
 
             for (var index = 0; index < _preparedMiddlewares.Length; index++)
