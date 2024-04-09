@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITYREDUXMIDDLEWARE_R3_INTEGRATION
+using System;
 using R3;
 using Action = Unity.AppUI.Redux.Action;
 
@@ -37,3 +38,4 @@ namespace UnityReduxMiddleware.Epic
         }
     }
 }
+#endif
