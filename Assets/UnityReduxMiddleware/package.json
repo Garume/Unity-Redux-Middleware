@@ -22,9 +22,9 @@
   },
   "samples": [
     {
-      "displayName": "Samples~/Sandbox",
+      "displayName": "Sandbox",
       "description": "Example of redux middleware",
-      "path": "Sandbox"
+      "path": "Samples~/Sandbox"
     }
   ]
 }
