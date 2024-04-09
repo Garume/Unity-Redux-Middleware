@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITYREDUXMIDDLEWARE_R3_INTEGRATION
+using System;
 using R3;
 
 namespace UnityReduxMiddleware.Epic
@@ -28,3 +29,4 @@ namespace UnityReduxMiddleware.Epic
         }
     }
 }
+#endif
