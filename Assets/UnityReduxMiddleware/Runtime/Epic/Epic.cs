@@ -7,13 +7,13 @@ namespace UnityReduxMiddleware.Epic
 {
     public delegate Observable<Action> Epic<TState, in TDependencies>(
         Observable<Action> action,
-        StateObservable<TState> state,
+        ReadOnlyReactiveProperty<TState> state,
         TDependencies dependencies
     );
 
     public delegate Observable<Action> Epic<TState>(
         Observable<Action> action,
-        StateObservable<TState> state
+        ReadOnlyReactiveProperty<TState> state
     );
 
     public static class Epic

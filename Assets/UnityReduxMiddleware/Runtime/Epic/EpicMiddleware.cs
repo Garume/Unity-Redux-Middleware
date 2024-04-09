@@ -23,7 +23,7 @@ namespace UnityReduxMiddleware.Epic
     public class EpicMiddleware<TState, TDependencies>
     {
         private readonly TDependencies _dependencies;
-        private readonly Subject<Epic<TState, TDependencies>> EpicSubject = new();
+        private readonly Subject<Epic<TState, TDependencies>> _epicSubject = new();
         private Store _store;
 
         internal EpicMiddleware()
@@ -44,16 +44,15 @@ namespace UnityReduxMiddleware.Epic
 
                 _store = store;
 
-                var actionSubjects = new Subject<Action>();
-                var stateSubjects = new Subject<TState>();
-                var actionObservable = actionSubjects.AsObservable().ObserveOnMainThread();
                 var initialState = (TState)store.GetState().First(x => x.Value is TState).Value;
-                var stateObservable =
-                    new StateObservable<TState>(stateSubjects.AsObservable().ObserveOnMainThread(), initialState);
-                var result = EpicSubject
+                var actionSubjects = new Subject<Action>();
+                var stateProperty = new ReactiveProperty<TState>(initialState);
+                var actionObservable = actionSubjects.AsObservable().ObserveOnMainThread();
+                var readOnlyStateProperty = (ReadOnlyReactiveProperty<TState>)stateProperty;
+                var result = _epicSubject
                     .Select(this, (epic, self) =>
                     {
-                        var output = epic(actionObservable, stateObservable, self._dependencies);
+                        var output = epic(actionObservable, readOnlyStateProperty, self._dependencies);
                         if (output == null) throw new Exception("Epic must return an observable.");
                         return output;
                     }).Merge();
@@ -64,7 +63,7 @@ namespace UnityReduxMiddleware.Epic
                 {
                     await next(action, token);
                     var state = (TState)store.GetState().First(x => x.Value is TState).Value;
-                    stateSubjects.OnNext(state);
+                    stateProperty.OnNext(state);
                     actionSubjects.OnNext(action);
                 };
             };
@@ -72,12 +71,12 @@ namespace UnityReduxMiddleware.Epic
 
         public void Run(Epic<TState, TDependencies> root)
         {
-            EpicSubject.OnNext(root);
+            _epicSubject.OnNext(root);
         }
 
         public void Run(Epic<TState> root)
         {
-            EpicSubject.OnNext((action, state, _) => root(action, state));
+            _epicSubject.OnNext((action, state, _) => root(action, state));
         }
     }
 }
