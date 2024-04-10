@@ -27,24 +27,19 @@ namespace Sandbox.ApiMock
 
         private Epic<ApiMockState> RootEpic()
         {
-            return Epic.Combine(SendRequestLoadingEpic(), SendRequestHelloEpic());
-        }
+            var builder = Epic.CreateBuilder<ApiMockState>();
+
+            Actions.SendRequest.CreateEpic<ApiMockState>((action, state) =>
+                action.Dispatch(Actions.SendAction.Invoke("Requesting..."))
+            ).AddTo(ref builder);
+
+            Actions.SendRequest.CreateEpic<ApiMockState>((action, state) =>
+                action.Delay(TimeSpan.FromSeconds(2))
+                    .Dispatch(Actions.SendAction.Invoke("Hello, Unity!"))
+            ).AddTo(ref builder);
 
 
-        public Epic<ApiMockState> SendRequestLoadingEpic()
-        {
-            return (action, state) => action
-                .OfAction(Actions.SendRequest)
-                .Dispatch(Actions.SendAction.Invoke("Loading..."));
-        }
-
-
-        public Epic<ApiMockState> SendRequestHelloEpic()
-        {
-            return (action, state) => action
-                .OfAction(Actions.SendRequest)
-                .Delay(TimeSpan.FromSeconds(2))
-                .Dispatch(Actions.SendAction.Invoke("Hello, Unity!"));
+            return builder.Build();
         }
     }
 }
