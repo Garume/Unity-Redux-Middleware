@@ -1,30 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Unity.AppUI.Redux;
+using UnityReduxMiddleware.Collections;
 using Action = Unity.AppUI.Redux.Action;
 
 namespace UnityReduxMiddleware
 {
-    public delegate Func<DispatchDelegate, DispatchDelegate> MiddlewareDelegate(Store store);
+    public delegate Func<DispatchDelegate, DispatchDelegate> MiddlewareDelegate(MiddlewareStore store);
 
     public delegate Task DispatchDelegate(Action action, CancellationToken token = default);
 
     public sealed class MiddlewareStore
     {
         private readonly SynchronizationContext _mainThreadContext = SynchronizationContext.Current;
-        private readonly List<Func<DispatchDelegate, DispatchDelegate>> _middlewares = new();
         private readonly Store _store = new();
-        private bool _alreadyPrepared;
-
-        private Func<DispatchDelegate, DispatchDelegate>[] _preparedMiddlewares;
-
+        private bool _duringSetupMiddleware;
+        private SimpleListCore<Func<DispatchDelegate, DispatchDelegate>> _middlewares;
 
         public void AddMiddleware(MiddlewareDelegate middleware)
         {
-            _middlewares.Add(middleware(_store));
+            _duringSetupMiddleware = true;
+            var setUpdMiddleware = middleware(this);
+            _duringSetupMiddleware = false;
+            _middlewares.Add(setUpdMiddleware);
         }
 
         public Slice<TState> CreateSlice<TState>(
@@ -42,29 +42,38 @@ namespace UnityReduxMiddleware
             return _store.GetState<TState>(name);
         }
 
+        public Dictionary<string, object> GetState()
+        {
+            return _store.GetState();
+        }
+
+        private void ThrowIfDuringSetupMiddleware()
+        {
+            if (_duringSetupMiddleware)
+                throw new ArgumentException("Dispatching actions during middleware setup is not allowed.");
+        }
+
         public void Dispatch(Action action)
         {
+            ThrowIfDuringSetupMiddleware();
             Task.Run(() => DispatchAsync(action));
         }
 
         public void Dispatch(string actionType)
         {
+            ThrowIfDuringSetupMiddleware();
             Task.Run(() => DispatchAsync(actionType));
         }
 
         public void Dispatch<T>(string actionType, T payload)
         {
+            ThrowIfDuringSetupMiddleware();
             Task.Run(() => DispatchAsync(actionType, payload));
         }
 
         public async Task DispatchAsync(Action action, CancellationToken token = default)
         {
-            if (!_alreadyPrepared)
-            {
-                _preparedMiddlewares = _middlewares.AsEnumerable().Reverse().ToArray();
-                _alreadyPrepared = true;
-            }
-
+            ThrowIfDuringSetupMiddleware();
             DispatchDelegate next = (a, _) =>
             {
                 var tcs = new TaskCompletionSource<bool>();
@@ -84,21 +93,13 @@ namespace UnityReduxMiddleware
                 return tcs.Task;
             };
 
-            for (var index = 0; index < _preparedMiddlewares.Length; index++)
+            var middlewares = _middlewares.AsMemory();
+
+            for (var index = middlewares.Length - 1; index >= 0; index--)
             {
                 var oldNext = next;
-                var current = _preparedMiddlewares[index];
-                next = async (a, t) =>
-                {
-                    try
-                    {
-                        await current(oldNext)(a, t);
-                    }
-                    catch (Exception e) when (e is not OperationCanceledException)
-                    {
-                        throw;
-                    }
-                };
+                var current = middlewares.Span[index];
+                next = async (a, t) => await current(oldNext)(a, t);
             }
 
             await next(action, token);
@@ -106,11 +107,13 @@ namespace UnityReduxMiddleware
 
         public async Task DispatchAsync(string actionType, CancellationToken token = default)
         {
+            ThrowIfDuringSetupMiddleware();
             await DispatchAsync(Store.CreateAction(actionType).Invoke(), token);
         }
 
         public async Task DispatchAsync<T>(string actionType, T payload, CancellationToken token = default)
         {
+            ThrowIfDuringSetupMiddleware();
             await DispatchAsync(Store.CreateAction<T>(actionType).Invoke(payload), token);
         }
 

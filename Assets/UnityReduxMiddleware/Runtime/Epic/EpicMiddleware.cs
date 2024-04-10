@@ -2,7 +2,6 @@
 using System;
 using System.Linq;
 using R3;
-using Unity.AppUI.Redux;
 using Action = Unity.AppUI.Redux.Action;
 
 namespace UnityReduxMiddleware.Epic
@@ -24,7 +23,7 @@ namespace UnityReduxMiddleware.Epic
     {
         private readonly TDependencies _dependencies;
         private readonly Subject<Epic<TState, TDependencies>> _epicSubject = new();
-        private Store _store;
+        private MiddlewareStore _store;
 
         internal EpicMiddleware()
         {
@@ -49,15 +48,16 @@ namespace UnityReduxMiddleware.Epic
                 var stateProperty = new ReactiveProperty<TState>(initialState);
                 var actionObservable = actionSubjects.AsObservable().ObserveOnMainThread();
                 var readOnlyStateProperty = (ReadOnlyReactiveProperty<TState>)stateProperty;
-                var result = _epicSubject
+
+                _epicSubject
                     .Select(this, (epic, self) =>
                     {
                         var output = epic(actionObservable, readOnlyStateProperty, self._dependencies);
                         if (output == null) throw new Exception("Epic must return an observable.");
                         return output;
-                    }).Merge();
-
-                result.Subscribe(this, (action, self) => { self._store.Dispatch(action); });
+                    })
+                    .Merge()
+                    .Subscribe(this, static (action, self) => self._store.Dispatch(action));
 
                 return next => async (action, token) =>
                 {
