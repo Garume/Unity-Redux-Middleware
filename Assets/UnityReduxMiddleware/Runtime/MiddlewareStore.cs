@@ -56,19 +56,19 @@ namespace UnityReduxMiddleware
         public void Dispatch(Action action)
         {
             ThrowIfDuringSetupMiddleware();
-            Task.Run(() => DispatchAsync(action));
+            Task.Run(async () => await DispatchAsync(action)).ConfigureAwait(false);
         }
 
         public void Dispatch(string actionType)
         {
             ThrowIfDuringSetupMiddleware();
-            Task.Run(() => DispatchAsync(actionType));
+            Task.Run(async () => await DispatchAsync(actionType)).ConfigureAwait(false);
         }
 
         public void Dispatch<T>(string actionType, T payload)
         {
             ThrowIfDuringSetupMiddleware();
-            Task.Run(() => DispatchAsync(actionType, payload));
+            Task.Run(async () => await DispatchAsync(actionType, payload)).ConfigureAwait(false);
         }
 
         public async Task DispatchAsync(Action action, CancellationToken token = default)
