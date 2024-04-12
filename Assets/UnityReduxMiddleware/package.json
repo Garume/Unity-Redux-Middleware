@@ -19,8 +19,7 @@
   "description": "Unity Redux Middleware",
   "dependencies": {
     "com.unity.dt.app-ui": "1.0.6",
-    "com.unity.test-framework": "1.3.0",
-    "com.unity.test-framework.performance": "3.0.3"
+    "com.unity.test-framework": "1.3.0"
   },
   "samples": [
     {
