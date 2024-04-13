@@ -19,10 +19,14 @@ namespace UnityReduxMiddleware.Epic
         }
     }
 
-    public class EpicMiddleware<TState, TDependencies>
+    public class EpicMiddleware<TState, TDependencies> : IDisposable
     {
+        private readonly Subject<Action> _actionSubject = new();
         private readonly TDependencies _dependencies;
         private readonly Subject<Epic<TState, TDependencies>> _epicSubject = new();
+        private DisposableBag _disposables;
+        private ReactiveProperty<TState> _stateProperty = new();
+
         private MiddlewareStore _store;
 
         internal EpicMiddleware()
@@ -32,6 +36,12 @@ namespace UnityReduxMiddleware.Epic
         internal EpicMiddleware(TDependencies dependencies)
         {
             _dependencies = dependencies;
+        }
+
+        public void Dispose()
+        {
+            _disposables.Dispose();
+            _actionSubject?.Dispose();
         }
 
 
@@ -44,27 +54,29 @@ namespace UnityReduxMiddleware.Epic
                 _store = store;
 
                 var initialState = (TState)store.GetState().First(x => x.Value is TState).Value;
-                var actionSubjects = new Subject<Action>();
-                var stateProperty = new ReactiveProperty<TState>(initialState);
-                var actionObservable = actionSubjects.AsObservable().ObserveOnMainThread();
-                var readOnlyStateProperty = (ReadOnlyReactiveProperty<TState>)stateProperty;
+                _stateProperty = new ReactiveProperty<TState>(initialState);
+                _stateProperty.AddTo(ref _disposables);
+                var readOnlyStateProperty = (ReadOnlyReactiveProperty<TState>)_stateProperty;
 
                 _epicSubject
                     .Select(this, (epic, self) =>
                     {
-                        var output = epic(actionObservable, readOnlyStateProperty, self._dependencies);
+                        var output = epic(_actionSubject, readOnlyStateProperty, self._dependencies);
                         if (output == null) throw new Exception("Epic must return an observable.");
                         return output;
                     })
                     .Merge()
-                    .Subscribe(this, static (action, self) => self._store.Dispatch(action));
+                    //.ObserveOnMainThread()
+                    .Subscribe(this, static (action, self) => self._store.Dispatch(action, true))
+                    .AddTo(ref _disposables);
 
                 return next => async (action, token) =>
                 {
                     await next(action, token);
                     var state = (TState)store.GetState().First(x => x.Value is TState).Value;
-                    stateProperty.OnNext(state);
-                    actionSubjects.OnNext(action);
+
+                    _stateProperty.OnNext(state);
+                    _actionSubject.OnNext(action);
                 };
             };
         }

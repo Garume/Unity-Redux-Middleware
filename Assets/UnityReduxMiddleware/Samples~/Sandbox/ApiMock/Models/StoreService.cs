@@ -1,6 +1,8 @@
 ﻿using System;
 using R3;
 using Sandbox.ApiMock.Models;
+using Unity.AppUI.MVVM;
+using UnityEngine;
 using UnityReduxMiddleware;
 using UnityReduxMiddleware.Epic;
 using UnityReduxMiddleware.Middlewares;
@@ -21,6 +23,12 @@ namespace Sandbox.ApiMock
             Store.AddMiddleware(epicMiddleware.Create());
 
             epicMiddleware.Run(RootEpic());
+
+            App.shuttingDown += () =>
+            {
+                epicMiddleware.Dispose();
+                Store.Dispose();
+            };
         }
 
         public MiddlewareStore Store { get; }

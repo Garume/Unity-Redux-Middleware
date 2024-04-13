@@ -12,12 +12,17 @@ namespace UnityReduxMiddleware
 
     public delegate Task DispatchDelegate(Action action, CancellationToken token = default);
 
-    public sealed class MiddlewareStore
+    public sealed class MiddlewareStore : IDisposable
     {
         private readonly SynchronizationContext _mainThreadContext = SynchronizationContext.Current;
         private readonly Store _store = new();
         private bool _duringSetupMiddleware;
         private SimpleListCore<Func<DispatchDelegate, DispatchDelegate>> _middlewares;
+
+        public void Dispose()
+        {
+            _middlewares.Clear();
+        }
 
         public void AddMiddleware(MiddlewareDelegate middleware)
         {
@@ -53,22 +58,48 @@ namespace UnityReduxMiddleware
                 throw new ArgumentException("Dispatching actions during middleware setup is not allowed.");
         }
 
-        public void Dispatch(Action action)
+        public void Dispatch(Action action, bool excludeMiddleware = false)
         {
             ThrowIfDuringSetupMiddleware();
-            Task.Run(async () => await DispatchAsync(action)).ConfigureAwait(false);
+
+            if (excludeMiddleware)
+            {
+                _store.Dispatch(action);
+                return;
+            }
+
+            DispatchDelegate next = (a, _) =>
+            {
+                _store.Dispatch(a);
+                return Task.CompletedTask;
+            };
+
+            var middlewares = _middlewares.AsMemory();
+
+            for (var index = middlewares.Length - 1; index >= 0; index--)
+            {
+                var oldNext = next;
+                var current = middlewares.Span[index];
+                next = (a, t) =>
+                {
+                    current(oldNext)(a).Wait(t);
+                    return Task.CompletedTask;
+                };
+            }
+
+            next(action);
         }
 
-        public void Dispatch(string actionType)
+        public void Dispatch(string actionType, bool excludeMiddleware = false)
         {
             ThrowIfDuringSetupMiddleware();
-            Task.Run(async () => await DispatchAsync(actionType)).ConfigureAwait(false);
+            Dispatch(Store.CreateAction(actionType).Invoke(), excludeMiddleware);
         }
 
-        public void Dispatch<T>(string actionType, T payload)
+        public void Dispatch<T>(string actionType, T payload, bool excludeMiddleware = false)
         {
             ThrowIfDuringSetupMiddleware();
-            Task.Run(async () => await DispatchAsync(actionType, payload)).ConfigureAwait(false);
+            Dispatch(Store.CreateAction<T>(actionType).Invoke(payload), excludeMiddleware);
         }
 
         public async Task DispatchAsync(Action action, CancellationToken token = default)
