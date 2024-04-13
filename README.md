@@ -5,7 +5,7 @@ It can also be integrated with R3 to add processes that can be written in Rx.
 
 [![license](https://img.shields.io/badge/LICENSE-MIT-green.svg)](LICENSE)
 
-日本語版 README
+[日本語版 README](https://github.com/Garume/Unity-Redux-Middleware/blob/master/README_JA.md)
 
 ## Overview
 
