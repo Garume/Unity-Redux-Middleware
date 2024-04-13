@@ -1,4 +1,5 @@
 ﻿using System;
+using R3;
 using UnityReduxMiddleware.Epic;
 
 namespace UnityReduxMiddleware.Tests.Runtime.Utility
@@ -8,20 +9,14 @@ namespace UnityReduxMiddleware.Tests.Runtime.Utility
         public static Epic<MockState> Create(Action onDispatched)
         {
             return Epic.Epic.Create<MockState>((action, _) =>
-            {
-                onDispatched();
-                return action;
-            });
+                action.Do(_ => onDispatched.Invoke()));
         }
 
         public static Epic<MockState, MockDependency.Int> CreateWithIntDependency(
             Action<MockDependency.Int> onDispatched)
         {
             return Epic.Epic.Create<MockState, MockDependency.Int>((action, _, dependency) =>
-            {
-                onDispatched(dependency);
-                return action;
-            });
+                action.Do(_ => onDispatched.Invoke(dependency)));
         }
 
         public static Epic<MockState> CreateReturnNull()

@@ -55,6 +55,24 @@ namespace UnityReduxMiddleware.Tests.Runtime
         }
 
         [Test]
+        public void MiddlewareStore_MultipleMiddleware_SynchronizeExecute()
+        {
+            // Arrange
+            var store = new MiddlewareStore();
+            var count1 = 0;
+            var count2 = 0;
+            var incrementMiddleware1 = MockMiddleware.Create(() => count1++);
+            var incrementMiddleware2 = MockMiddleware.Create(() => count2++);
+            store.AddMiddleware(incrementMiddleware1);
+            store.AddMiddleware(incrementMiddleware2);
+            // Act
+            store.Dispatch(new Action(""));
+            // Assert
+            Assert.That(count1, Is.EqualTo(1));
+            Assert.That(count2, Is.EqualTo(1));
+        }
+
+        [Test]
         public async Task MiddlewareStore_MiddlewareExecution_AddedInOrder()
         {
             // Arrange

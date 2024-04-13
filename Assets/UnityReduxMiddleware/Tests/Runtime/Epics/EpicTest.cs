@@ -70,7 +70,7 @@ namespace UnityReduxMiddleware.Tests.Runtime.Epics
             actionSubject.OnNext(new Action(""));
 
             // Assert
-            Assert.That(count, Is.EqualTo(1));
+            Assert.That(count, Is.EqualTo(2));
         }
 
         [Test]

@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Threading.Tasks;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using UnityReduxMiddleware.Epic;
@@ -16,15 +17,40 @@ namespace UnityReduxMiddleware.Tests.Runtime.Epics
             // Arrange
             var count = 0;
             var epic = MockEpic.Create(() => count++);
+            var epic2 = MockEpic.Create(() => count += 2);
             var epicMiddleware = EpicMiddleware.Default<MockState>();
             var store = new MiddlewareStore();
             store.CreateSlice("app", new MockState(), _ => { });
-            store.AddMiddleware(epicMiddleware.Create());
-            epicMiddleware.Run(epic);
+            var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => Task.CompletedTask);
+            epicMiddleware.Run(Epic.Epic.Combine(epic, epic2));
+
             // Act
-            store.Dispatch(new Action(""));
+            dispatch(new Action("")).Wait();
+            dispatch(new Action("")).Wait();
+
             // Assert
-            Assert.That(count, Is.EqualTo(1));
+            Assert.That(count, Is.EqualTo(6));
+        }
+
+        [Test]
+        public async Task EpicMiddleware_EpicAdded_ExecuteAsync()
+        {
+            // Arrange
+            var count = 0;
+            var epic = MockEpic.Create(() => count++);
+            var epic2 = MockEpic.Create(() => count += 2);
+            var epicMiddleware = EpicMiddleware.Default<MockState>();
+            var store = new MiddlewareStore();
+            store.CreateSlice("app", new MockState(), _ => { });
+            var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => Task.CompletedTask);
+            epicMiddleware.Run(Epic.Epic.Combine(epic, epic2));
+
+            // Act
+            await dispatch(new Action(""));
+            await dispatch(new Action(""));
+
+            // Assert
+            Assert.That(count, Is.EqualTo(6));
         }
 
         [Test]
@@ -37,12 +63,14 @@ namespace UnityReduxMiddleware.Tests.Runtime.Epics
             var epicMiddleware = EpicMiddleware.Default<MockState, MockDependency.Int>(dependency);
             var store = new MiddlewareStore();
             store.CreateSlice("app", new MockState(), _ => { });
-            store.AddMiddleware(epicMiddleware.Create());
+            var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => Task.CompletedTask);
             epicMiddleware.Run(epic);
             // Act
-            store.Dispatch(new Action(""));
+            dispatch(new Action(""));
+            dispatch(new Action(""));
+            //await Task.Delay(1000);
             // Assert
-            Assert.That(count, Is.EqualTo(2));
+            Assert.That(count, Is.EqualTo(4));
         }
 
         [Test]
@@ -53,12 +81,12 @@ namespace UnityReduxMiddleware.Tests.Runtime.Epics
             var epicMiddleware = EpicMiddleware.Default<MockState>();
             var store = new MiddlewareStore();
             store.CreateSlice("app", new MockState(), _ => { });
-            store.AddMiddleware(epicMiddleware.Create());
+            var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => Task.CompletedTask);
             epicMiddleware.Run(epic);
             // Act
             // Assert
             LogAssert.Expect(LogType.Exception, "Exception: Epic must return an observable.");
-            store.Dispatch(new Action(""));
+            dispatch(new Action(""));
         }
     }
 }
