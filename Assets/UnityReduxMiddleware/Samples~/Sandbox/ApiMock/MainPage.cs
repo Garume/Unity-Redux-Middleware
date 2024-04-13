@@ -25,11 +25,18 @@ namespace Sandbox.ApiMock
                 text = "Click me! Send Request"
             };
 
+            var button3 = new Button
+            {
+                text = "Click me! Send Request Async"
+            };
+
             button.clicked += _model.SendCommend.Execute;
             button2.clicked += _model.SendRequestCommend.Execute;
+            button3.clicked += _model.SendRequestAsyncCommend.Execute;
             Add(_label);
             Add(button);
             Add(button2);
+            Add(button3);
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)

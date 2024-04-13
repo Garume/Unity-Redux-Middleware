@@ -1,4 +1,5 @@
-﻿using Sandbox.ApiMock.Models;
+﻿using System.Threading.Tasks;
+using Sandbox.ApiMock.Models;
 using Unity.AppUI.MVVM;
 
 namespace Sandbox.ApiMock
@@ -7,6 +8,7 @@ namespace Sandbox.ApiMock
     {
         private readonly IStoreService _storeService;
         public readonly RelayCommand SendCommend;
+        public readonly AsyncRelayCommand SendRequestAsyncCommend;
         public readonly RelayCommand SendRequestCommend;
         private string _message;
 
@@ -15,6 +17,7 @@ namespace Sandbox.ApiMock
             _storeService = storeService;
             SendCommend = new RelayCommand(Send);
             SendRequestCommend = new RelayCommand(SendRequest);
+            SendRequestAsyncCommend = new AsyncRelayCommand(SendRequestAsync);
 
             _message = _storeService.Store.GetState<ApiMockState>(ApiMockApp.AppName).Message;
             _storeService.Store.Subscribe<ApiMockState>(ApiMockApp.AppName, OnStateChanged);
@@ -39,6 +42,11 @@ namespace Sandbox.ApiMock
         private void SendRequest()
         {
             _storeService.Store.Dispatch(Actions.SendRequest);
+        }
+
+        private async Task SendRequestAsync()
+        {
+            await _storeService.Store.DispatchAsync(Actions.SendRequest);
         }
     }
 }
