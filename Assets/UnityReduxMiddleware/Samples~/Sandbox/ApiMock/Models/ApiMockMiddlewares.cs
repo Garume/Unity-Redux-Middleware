@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Unity.AppUI.Redux;
+using UnityEngine;
 using UnityReduxMiddleware;
 
 namespace Sandbox.ApiMock.Models
@@ -12,7 +13,7 @@ namespace Sandbox.ApiMock.Models
         {
             return store => next => async (action, token) =>
             {
-                if (action.type != Actions.Send)
+                if (action.type != Actions.SendRequest)
                 {
                     await next(action, token);
                 }
