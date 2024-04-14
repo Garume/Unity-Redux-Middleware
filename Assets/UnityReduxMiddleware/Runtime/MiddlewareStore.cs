@@ -82,7 +82,7 @@ namespace UnityReduxMiddleware
                 var current = middlewares.Span[index];
                 next = (a, t) =>
                 {
-                    current(oldNext)(a).Wait(t);
+                    current(oldNext)(a);
                     return Task.CompletedTask;
                 };
             }
