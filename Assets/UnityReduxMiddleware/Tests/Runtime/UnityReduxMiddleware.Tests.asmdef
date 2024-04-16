@@ -6,7 +6,8 @@
         "UnityEditor.TestRunner",
         "Unity.PerformanceTesting",
         "UnityReduxMiddleware",
-        "Unity.AppUI.Redux"
+        "Unity.AppUI.Redux",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -20,6 +21,12 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.cysharp.unitask",
+            "expression": "",
+            "define": "UNITYREDUXMIDDLEWARETEST_UNITASK_INTEGRATION"
+        }
+    ],
     "noEngineReferences": false
 }
