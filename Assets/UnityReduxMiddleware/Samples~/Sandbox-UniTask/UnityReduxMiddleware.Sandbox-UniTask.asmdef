@@ -1,10 +1,11 @@
 {
-    "name": "UnityReduxMiddleware.Sandbox",
+    "name": "UnityReduxMiddleware.Sandbox-UniTask",
     "rootNamespace": "",
     "references": [
         "GUID:512d9fceac866f24b8ea8bff5b394c65",
         "GUID:710bb277e6ff49ed91ba164465e106ef",
-        "GUID:9c739b017e1d4fdabf06fa2d84a463c3"
+        "GUID:9c739b017e1d4fdabf06fa2d84a463c3",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -13,7 +14,7 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [
-        "!HAS_UNITASK"
+        "HAS_UNITASK"
     ],
     "versionDefines": [
         {
