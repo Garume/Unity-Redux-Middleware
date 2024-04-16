@@ -1,7 +1,7 @@
 ﻿{
   "name": "com.garume.unity-redux-middleware",
   "displayName": "Unity Redux Middleware",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "unity": "2022.3",
   "license": "MIT",
   "category": "UI",
@@ -26,6 +26,11 @@
       "displayName": "Sandbox",
       "description": "Example of redux middleware",
       "path": "Samples~/Sandbox"
+    },
+    {
+      "displayName": "Sandbox-UniTask",
+      "description": "Example of redux middleware. Use UniTask",
+      "path": "Samples~/Sandbox-UniTask"
     }
   ]
 }
