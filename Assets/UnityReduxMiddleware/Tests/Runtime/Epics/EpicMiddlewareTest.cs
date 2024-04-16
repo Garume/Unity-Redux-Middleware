@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿#if UNITYREDUXMIDDLEWARETEST_UNITASK_INTEGRATION
+using Cysharp.Threading.Tasks;
+#endif
+using System.Threading.Tasks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -21,13 +24,21 @@ namespace UnityReduxMiddleware.Tests.Runtime.Epics
             var epicMiddleware = EpicMiddleware.Default<MockState>();
             var store = new MiddlewareStore();
             store.CreateSlice("app", new MockState(), _ => { });
+#if UNITYREDUXMIDDLEWARETEST_UNITASK_INTEGRATION
+            var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => UniTask.CompletedTask);
+#else
             var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => Task.CompletedTask);
+#endif
             epicMiddleware.Run(Epic.Epic.Combine(epic, epic2));
 
             // Act
+#if UNITYREDUXMIDDLEWARETEST_UNITASK_INTEGRATION
+            dispatch(new Action("")).AsTask().Wait();
+            dispatch(new Action("")).AsTask().Wait();
+#else
             dispatch(new Action("")).Wait();
             dispatch(new Action("")).Wait();
-
+#endif
             // Assert
             Assert.That(count, Is.EqualTo(6));
         }
@@ -42,7 +53,11 @@ namespace UnityReduxMiddleware.Tests.Runtime.Epics
             var epicMiddleware = EpicMiddleware.Default<MockState>();
             var store = new MiddlewareStore();
             store.CreateSlice("app", new MockState(), _ => { });
+#if UNITYREDUXMIDDLEWARETEST_UNITASK_INTEGRATION
+            var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => UniTask.CompletedTask);
+#else
             var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => Task.CompletedTask);
+#endif
             epicMiddleware.Run(Epic.Epic.Combine(epic, epic2));
 
             // Act
@@ -63,7 +78,11 @@ namespace UnityReduxMiddleware.Tests.Runtime.Epics
             var epicMiddleware = EpicMiddleware.Default<MockState, MockDependency.Int>(dependency);
             var store = new MiddlewareStore();
             store.CreateSlice("app", new MockState(), _ => { });
+#if UNITYREDUXMIDDLEWARETEST_UNITASK_INTEGRATION
+            var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => UniTask.CompletedTask);
+#else
             var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => Task.CompletedTask);
+#endif
             epicMiddleware.Run(epic);
             // Act
             dispatch(new Action(""));
@@ -81,7 +100,11 @@ namespace UnityReduxMiddleware.Tests.Runtime.Epics
             var epicMiddleware = EpicMiddleware.Default<MockState>();
             var store = new MiddlewareStore();
             store.CreateSlice("app", new MockState(), _ => { });
+#if UNITYREDUXMIDDLEWARETEST_UNITASK_INTEGRATION
+            var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => UniTask.CompletedTask);
+#else
             var dispatch = epicMiddleware.Create().Invoke(store)((_, _) => Task.CompletedTask);
+#endif
             epicMiddleware.Run(epic);
             // Act
             // Assert
