@@ -21,26 +21,28 @@ Note: This is not an explanation of AppUI.Redux.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
--   [Setup](#setup)
-    -   [Requirements](#requirements)
-    -   [Installation](#installation)
--   [Demonstration](#demonstration)
--   [Middleware](#middleware)
-    -   [Concepts](#concepts)
-    -   [How to create Middleware](#how-to-create-middleware)
-    -   [Execution order](#execution-order)
-    -   [Exception Handling](#exception-handling)
-    -   [Asynchronous Processing](#asynchronous-processing)
-    -   [Tests](#tests)
--   [Epic](#epic)
-    -   [Concepts](#concepts-1)
-    -   [Setup.](#setup)
-    -   [Demo](#demo)
-    -   [How to create Epic](#how-to-create-epic)
-    -   [Operators](#operators)
-        -   [OfAction](#ofaction)
-        -   [Dispatch](#dispatch)
-    -   [Combine](#combine)
+
+- [Setup](#setup)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+- [Demonstration](#demonstration)
+- [Middleware](#middleware)
+  - [Concepts](#concepts)
+  - [How to create Middleware](#how-to-create-middleware)
+  - [Execution order](#execution-order)
+  - [Exception Handling](#exception-handling)
+  - [Asynchronous Processing](#asynchronous-processing)
+  - [Tests](#tests)
+- [Epic](#epic)
+  - [Concepts](#concepts-1)
+  - [Setup.](#setup)
+  - [Demo](#demo)
+  - [How to create Epic](#how-to-create-epic)
+  - [Operators](#operators)
+    - [OfAction](#ofaction)
+    - [Dispatch](#dispatch)
+  - [Combine](#combine)
+- [Support UniTask](#support-unitask)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 </details>
@@ -462,3 +464,9 @@ private Epic<ApiMockState> RootEpic()
     return builder.Build();
 }
 ```
+
+## Support UniTask
+
+UnityReduxMiddleware typically uses `Task` internally. However, there may be situations where you would prefer to use `UniTask`.
+
+In such cases, simply incorporating UniTask into your project is sufficient. The middleware will automatically adjust its operations to return `UniTask`.

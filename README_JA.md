@@ -17,26 +17,28 @@ Unity.AppUI.Redux は Javascript で開発されている状態管理ライブ�
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
--   [セットアップ](#%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97)
-    -   [要件](#%E8%A6%81%E4%BB%B6)
-    -   [インストール](#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB)
--   [デモ](#%E3%83%87%E3%83%A2)
--   [Middleware](#middleware)
-    -   [概念](#%E6%A6%82%E5%BF%B5)
-    -   [Middleware の作成方法](#middleware-%E3%81%AE%E4%BD%9C%E6%88%90%E6%96%B9%E6%B3%95)
-    -   [実行順序](#%E5%AE%9F%E8%A1%8C%E9%A0%86%E5%BA%8F)
-    -   [例外処理](#%E4%BE%8B%E5%A4%96%E5%87%A6%E7%90%86)
-    -   [非同期処理](#%E9%9D%9E%E5%90%8C%E6%9C%9F%E5%87%A6%E7%90%86)
-    -   [テスト](#%E3%83%86%E3%82%B9%E3%83%88)
--   [Epic](#epic)
-    -   [概念](#%E6%A6%82%E5%BF%B5-1)
-    -   [セットアップ](#%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97-1)
-    -   [デモ](#%E3%83%87%E3%83%A2-1)
-    -   [Epic の作成方法](#epic-%E3%81%AE%E4%BD%9C%E6%88%90%E6%96%B9%E6%B3%95)
-    -   [オペレータ](#%E3%82%AA%E3%83%9A%E3%83%AC%E3%83%BC%E3%82%BF)
-        -   [OfAction](#ofaction)
-        -   [Dispatch](#dispatch)
-    -   [Combine](#combine)
+
+- [セットアップ](#%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97)
+  - [要件](#%E8%A6%81%E4%BB%B6)
+  - [インストール](#%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB)
+- [デモ](#%E3%83%87%E3%83%A2)
+- [Middleware](#middleware)
+  - [概念](#%E6%A6%82%E5%BF%B5)
+  - [Middleware の作成方法](#middleware-%E3%81%AE%E4%BD%9C%E6%88%90%E6%96%B9%E6%B3%95)
+  - [実行順序](#%E5%AE%9F%E8%A1%8C%E9%A0%86%E5%BA%8F)
+  - [例外処理](#%E4%BE%8B%E5%A4%96%E5%87%A6%E7%90%86)
+  - [非同期処理](#%E9%9D%9E%E5%90%8C%E6%9C%9F%E5%87%A6%E7%90%86)
+  - [テスト](#%E3%83%86%E3%82%B9%E3%83%88)
+- [Epic](#epic)
+  - [概念](#%E6%A6%82%E5%BF%B5-1)
+  - [セットアップ](#%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97-1)
+  - [デモ](#%E3%83%87%E3%83%A2-1)
+  - [Epic の作成方法](#epic-%E3%81%AE%E4%BD%9C%E6%88%90%E6%96%B9%E6%B3%95)
+  - [オペレータ](#%E3%82%AA%E3%83%9A%E3%83%AC%E3%83%BC%E3%82%BF)
+    - [OfAction](#ofaction)
+    - [Dispatch](#dispatch)
+  - [Combine](#combine)
+- [UniTask 対応](#unitask-%E5%AF%BE%E5%BF%9C)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 </details>
@@ -458,3 +460,9 @@ private Epic<ApiMockState> RootEpic()
     return builder.Build();
 }
 ```
+
+## UniTask 対応
+
+UnityReduxMiddleware は通常、内部で`Task`を使用しています。しかし、UniTask を使いたい場面もあるかもしれません。
+
+その場合、UniTask をプロジェクトに導入するだけで十分です。自動的に Middleware が`UniTask`を返すように動作を変更します。
