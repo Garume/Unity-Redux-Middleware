@@ -15,13 +15,43 @@ This library adds this middleware to AppUI.Redux.
 
 Note: This is not an explanation of AppUI.Redux.
 
+## Table of Contents
+
+<details>
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+-   [Setup](#setup)
+    -   [Requirements](#requirements)
+    -   [Installation](#installation)
+-   [Demonstration](#demonstration)
+-   [Middleware](#middleware)
+    -   [Concepts](#concepts)
+    -   [How to create Middleware](#how-to-create-middleware)
+    -   [Execution order](#execution-order)
+    -   [Exception Handling](#exception-handling)
+    -   [Asynchronous Processing](#asynchronous-processing)
+    -   [Tests](#tests)
+-   [Epic](#epic)
+    -   [Concepts](#concepts-1)
+    -   [Setup.](#setup)
+    -   [Demo](#demo)
+    -   [How to create Epic](#how-to-create-epic)
+    -   [Operators](#operators)
+        -   [OfAction](#ofaction)
+        -   [Dispatch](#dispatch)
+    -   [Combine](#combine)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+</details>
+
 ## Setup
 
 ### Requirements
 
 -   Unity 2022.3 or higher
 
-### Installation ### 1.
+### Installation
 
 1. select Window > Package Manager
 2. Select the "+" button > Add package from git URL
@@ -41,7 +71,7 @@ Or open Packages/manifest.json and add the following to the dependencies block
 }
 ```
 
-### Demonstration
+## Demonstration
 
 Create LoggerMiddleware that outputs logs before and after dispatch.
 
@@ -230,8 +260,7 @@ async Task DispatchAsync<T>(string actionType, T payload, CancellationToken toke
 
 ### Tests
 
-`Unity-Redux-Middleware/Assets/UnityReduxMiddleware/Tests
-/Runtime`.
+`Unity-Redux-Middleware/Assets/UnityReduxMiddleware/Tests/Runtime`.
 
 ## Epic
 
@@ -321,7 +350,7 @@ public static class Actions
 
 If you run this, you should get the following results. (We recommend using TestRunner.)
 
-! [alt text](docs/image-5.png)
+![alt text](docs/image-5.png)
 
 Next, let's create an Epic that converts a specific Action`IncrementActionRequest` into an Action`IncrementAction` when it is received.
 Epic can be combined, so use it as needed.
@@ -365,7 +394,7 @@ If you run this, you will get the following results
 
 ! [alt text](docs/image-6.png)
 
-## How to create Epic
+### How to create Epic
 
 To create Epic as usual, use the following.
 
@@ -392,19 +421,19 @@ actionType.CreateEpic<AppState>((action, state) =>
 });
 ```
 
-## Operators
+### Operators
 
 We provide operators that are useful for adding processing.
 
-### OfAction
+#### OfAction
 
 Only the Action passed as an argument is passed through.
 
-### Dispatch
+#### Dispatch
 
 Dispatch with the Action passed as argument.
 
-## Combine
+### Combine
 
 The following two methods are provided to combine Epic.
 
