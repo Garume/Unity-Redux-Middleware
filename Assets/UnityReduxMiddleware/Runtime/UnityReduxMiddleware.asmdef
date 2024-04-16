@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "GUID:710bb277e6ff49ed91ba164465e106ef",
-        "GUID:77221876cc6b8244180b96e320b1bcd4"
+        "GUID:77221876cc6b8244180b96e320b1bcd4",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -17,6 +18,11 @@
             "name": "com.cysharp.r3",
             "expression": "",
             "define": "UNITYREDUXMIDDLEWARE_R3_INTEGRATION"
+        },
+        {
+            "name": "com.cysharp.unitask",
+            "expression": "",
+            "define": "UNITYREDUXMIDDLEWARE_UNITASK_INTEGRATION"
         }
     ],
     "noEngineReferences": false

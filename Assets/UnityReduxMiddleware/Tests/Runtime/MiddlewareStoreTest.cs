@@ -1,4 +1,7 @@
-﻿using System;
+﻿#if UNITYREDUXMIDDLEWARETEST_UNITASK_INTEGRATION
+using Cysharp.Threading.Tasks;
+#endif
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -109,11 +112,13 @@ namespace UnityReduxMiddleware.Tests.Runtime
 
             store.AddMiddleware(middleware);
 
-            var tasks = Enumerable.Range(0, 100)
-                .Select(_ => store.DispatchAsync(new Action("")))
+            var tasks = Enumerable.Range(0, 100).Select(_ => store.DispatchAsync(new Action("")))
                 .ToArray();
+#if UNITYREDUXMIDDLEWARETEST_UNITASK_INTEGRATION
+            await UniTask.WhenAll(tasks);
+#else
             await Task.WhenAll(tasks);
-
+#endif
             Assert.That(actionCount, Is.EqualTo(100));
         }
     }

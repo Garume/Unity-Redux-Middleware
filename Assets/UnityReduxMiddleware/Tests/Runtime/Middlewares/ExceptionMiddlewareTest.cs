@@ -1,5 +1,9 @@
-﻿using System;
+﻿#if UNITYREDUXMIDDLEWARETEST_UNITASK_INTEGRATION
+using Cysharp.Threading.Tasks;
+#else
 using System.Threading.Tasks;
+#endif
+using System;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 using UnityReduxMiddleware.Middlewares;
@@ -34,7 +38,11 @@ namespace UnityReduxMiddleware.Tests.Runtime.Middlewares
             // Arrange
             // Act
             var middleware = ExceptionMiddleware.Create();
+#if UNITYREDUXMIDDLEWARETEST_UNITASK_INTEGRATION
+            var dispatch = middleware(_store)((_, _) => UniTask.CompletedTask);
+#else
             var dispatch = middleware(_store)((_, _) => Task.CompletedTask);
+#endif
             // Assert
             dispatch(new Action(""));
             Assert.Pass();

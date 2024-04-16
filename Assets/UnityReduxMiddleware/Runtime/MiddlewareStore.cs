@@ -1,7 +1,11 @@
-﻿using System;
+﻿#if UNITYREDUXMIDDLEWARE_UNITASK_INTEGRATION
+using Cysharp.Threading.Tasks;
+#else
+using System.Threading.Tasks;
+#endif
+using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using Unity.AppUI.Redux;
 using UnityReduxMiddleware.Collections;
 using Action = Unity.AppUI.Redux.Action;
@@ -10,7 +14,11 @@ namespace UnityReduxMiddleware
 {
     public delegate Func<DispatchDelegate, DispatchDelegate> MiddlewareDelegate(MiddlewareStore store);
 
+#if UNITYREDUXMIDDLEWARE_UNITASK_INTEGRATION
+    public delegate UniTask DispatchDelegate(Action action, CancellationToken token = default);
+#else
     public delegate Task DispatchDelegate(Action action, CancellationToken token = default);
+#endif
 
     public sealed class MiddlewareStore : IDisposable
     {
@@ -71,7 +79,11 @@ namespace UnityReduxMiddleware
             DispatchDelegate next = (a, _) =>
             {
                 _store.Dispatch(a);
+#if UNITYREDUXMIDDLEWARE_UNITASK_INTEGRATION
+                return UniTask.CompletedTask;
+#else
                 return Task.CompletedTask;
+#endif
             };
 
             var middlewares = _middlewares.AsMemory();
@@ -83,7 +95,11 @@ namespace UnityReduxMiddleware
                 next = (a, t) =>
                 {
                     current(oldNext)(a);
+#if UNITYREDUXMIDDLEWARE_UNITASK_INTEGRATION
+                    return UniTask.CompletedTask;
+#else
                     return Task.CompletedTask;
+#endif
                 };
             }
 
@@ -102,22 +118,39 @@ namespace UnityReduxMiddleware
             Dispatch(Store.CreateAction<T>(actionType).Invoke(payload), excludeMiddleware);
         }
 
+
+#if UNITYREDUXMIDDLEWARE_UNITASK_INTEGRATION
+        public async UniTask DispatchAsync(Action action, CancellationToken token = default)
+#else
         public async Task DispatchAsync(Action action, CancellationToken token = default)
+#endif
         {
             ThrowIfDuringSetupMiddleware();
             DispatchDelegate next = (a, _) =>
             {
+#if UNITYREDUXMIDDLEWARE_UNITASK_INTEGRATION
+                var tcs = new UniTaskCompletionSource<bool>();
+#else
                 var tcs = new TaskCompletionSource<bool>();
+#endif
                 _mainThreadContext.Post(_ =>
                 {
                     try
                     {
                         _store.Dispatch(a);
+#if UNITYREDUXMIDDLEWARE_UNITASK_INTEGRATION
+                        tcs.TrySetResult(true);
+#else
                         tcs.SetResult(true);
+#endif
                     }
                     catch (Exception ex)
                     {
+#if UNITYREDUXMIDDLEWARE_UNITASK_INTEGRATION
+                        tcs.TrySetException(ex);
+#else
                         tcs.SetException(ex);
+#endif
                     }
                 }, null);
 
@@ -136,13 +169,21 @@ namespace UnityReduxMiddleware
             await next(action, token);
         }
 
+#if UNITYREDUXMIDDLEWARE_UNITASK_INTEGRATION
+        public async UniTask DispatchAsync(string actionType, CancellationToken token = default)
+#else
         public async Task DispatchAsync(string actionType, CancellationToken token = default)
+#endif
         {
             ThrowIfDuringSetupMiddleware();
             await DispatchAsync(Store.CreateAction(actionType).Invoke(), token);
         }
 
+#if UNITYREDUXMIDDLEWARE_UNITASK_INTEGRATION
+        public async UniTask DispatchAsync<T>(string actionType, T payload, CancellationToken token = default)
+#else
         public async Task DispatchAsync<T>(string actionType, T payload, CancellationToken token = default)
+#endif
         {
             ThrowIfDuringSetupMiddleware();
             await DispatchAsync(Store.CreateAction<T>(actionType).Invoke(payload), token);
